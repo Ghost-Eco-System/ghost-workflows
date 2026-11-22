@@ -50,7 +50,7 @@ jobs:
       GHOST_CI_PRIVATE_KEY: ${{ secrets.GHOST_CI_PRIVATE_KEY }}
 ```
 
-`secrets: inherit` does not cross organisations: pass the secret by name, as above. The repo needs the variable `GHOST_CI_APP_ID` and the secret `GHOST_CI_PRIVATE_KEY` of the **Ghost CI** GitHub App (read-only access to the private libraries), and `scripts/firmware_dist.py` as a PlatformIO post script (it writes `firmware/`). ESP32 products declare `custom_fw_nvs_offset` in `platformio.ini`.
+`secrets: inherit` does not cross organisations: pass the secret by name, as above. The repo needs the variable `GHOST_CI_APP_ID` and the secret `GHOST_CI_PRIVATE_KEY` of the **Ghost CI** GitHub App (read-only access to the private libraries), and `scripts/firmware_dist.py` as a PlatformIO post script (it writes `firmware/`). ESP32 products declare `custom_fw_nvs_offset` in `platformio.ini`. When host tests use the local Ghost tree (`symlink://../../../core/ghost-eco-system/...`), set `local-core-tree: true`: the libraries of `platformio.ini` are cloned there at their pinned tags.
 
 ## Checks before a release (`scripts/ghost_release.py`)
 

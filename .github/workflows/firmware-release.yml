@@ -21,6 +21,10 @@ on:
         description: App ID of the Ghost CI App (vars.GHOST_CI_APP_ID), needed with `libraries`
         type: string
         default: ''
+      local-core-tree:
+        description: Clone the Ghost-Eco-System libraries of platformio.ini, at their pinned tags, to ../../../core/ghost-eco-system/ (envs that use the local Ghost tree, such as host tests)
+        type: boolean
+        default: false
       native-tests:
         description: Run `pio test -e native` before the build
         type: boolean
@@ -64,6 +68,18 @@ jobs:
         run: |
           git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
           git config --global --add url."https://x-access-token:${TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
+
+      - name: Local Ghost tree at the pinned tags
+        if: inputs.local-core-tree
+        run: |
+          root="$GITHUB_WORKSPACE/../../../core/ghost-eco-system"
+          mkdir -p "$root"
+          grep -oE 'git@github\.com:Ghost-Eco-System/[A-Za-z0-9._-]+\.git#[A-Za-z0-9._-]+' platformio.ini | sort -u |
+          while IFS= read -r ref; do
+            name=$(basename "${ref%%.git#*}"); tag="${ref##*#}"
+            echo "$name at $tag"
+            git clone -q --depth 1 --branch "$tag" "git@github.com:Ghost-Eco-System/$name.git" "$root/$name"
+          done
 
       - uses: actions/setup-python@v5
         with:
