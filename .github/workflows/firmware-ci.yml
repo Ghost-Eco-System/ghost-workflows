@@ -1,0 +1,78 @@
+# CI of a Ghost firmware, called by the ci.yml of a firmware repo on every push and pull
+# request: host tests, then the build of each environment. Reads only.
+name: Firmware CI
+
+on:
+  workflow_call:
+    inputs:
+      envs:
+        description: PlatformIO environments to build, separated by spaces
+        type: string
+        required: true
+      libraries:
+        description: Private repos of Ghost-Eco-System the build reads (lib_deps), separated by commas
+        type: string
+        default: ''
+      app-id:
+        description: App ID of the Ghost CI App (vars.GHOST_CI_APP_ID), needed with `libraries`
+        type: string
+        default: ''
+      native-tests:
+        description: Run `pio test -e native` before the build
+        type: boolean
+        default: true
+    secrets:
+      GHOST_CI_PRIVATE_KEY:
+        required: false
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Token to read the private libraries (one hour, those repos only)
+        if: inputs.libraries != ''
+        id: libs
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ inputs.app-id }}
+          private-key: ${{ secrets.GHOST_CI_PRIVATE_KEY }}
+          owner: Ghost-Eco-System
+          repositories: ${{ inputs.libraries }}
+
+      - name: lib_deps over SSH resolve with that token
+        if: inputs.libraries != ''
+        env:
+          TOKEN: ${{ steps.libs.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+          git config --global --add url."https://x-access-token:${TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: PlatformIO
+        run: pip install platformio==6.2.0
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+
+      - name: Host tests
+        if: inputs.native-tests
+        run: pio test -e native
+
+      - name: Build
+        env:
+          ENVS: ${{ inputs.envs }}
+        run: for e in $ENVS; do pio run -e "$e"; done
