@@ -25,7 +25,8 @@ jobs:
       envs: nano
       libraries: ghost-field-core,ghost-field-arduino
       app-id: ${{ vars.GHOST_CI_APP_ID }}
-    secrets: inherit
+    secrets:
+      GHOST_CI_PRIVATE_KEY: ${{ secrets.GHOST_CI_PRIVATE_KEY }}
 ```
 
 `.github/workflows/release.yml`:
@@ -45,10 +46,11 @@ jobs:
       envs: nano
       libraries: ghost-field-core,ghost-field-arduino
       app-id: ${{ vars.GHOST_CI_APP_ID }}
-    secrets: inherit
+    secrets:
+      GHOST_CI_PRIVATE_KEY: ${{ secrets.GHOST_CI_PRIVATE_KEY }}
 ```
 
-The repo needs the variable `GHOST_CI_APP_ID` and the secret `GHOST_CI_PRIVATE_KEY` of the **Ghost CI** GitHub App (read-only access to the private libraries), and `scripts/firmware_dist.py` as a PlatformIO post script (it writes `firmware/`). ESP32 products declare `custom_fw_nvs_offset` in `platformio.ini`.
+`secrets: inherit` does not cross organisations: pass the secret by name, as above. The repo needs the variable `GHOST_CI_APP_ID` and the secret `GHOST_CI_PRIVATE_KEY` of the **Ghost CI** GitHub App (read-only access to the private libraries), and `scripts/firmware_dist.py` as a PlatformIO post script (it writes `firmware/`). ESP32 products declare `custom_fw_nvs_offset` in `platformio.ini`.
 
 ## Checks before a release (`scripts/ghost_release.py`)
 

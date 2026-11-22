@@ -34,14 +34,14 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
       - name: Token to read the private libraries (one hour, those repos only)
         if: inputs.libraries != ''
         id: libs
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ inputs.app-id }}
           private-key: ${{ secrets.GHOST_CI_PRIVATE_KEY }}
