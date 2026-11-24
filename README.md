@@ -52,6 +52,19 @@ jobs:
 
 `secrets: inherit` does not cross organisations: pass the secret by name, as above. The repo needs the variable `GHOST_CI_APP_ID` and the secret `GHOST_CI_PRIVATE_KEY` of the **Ghost CI** GitHub App (read-only access to the private libraries), and `scripts/firmware_dist.py` as a PlatformIO post script (it writes `firmware/`). ESP32 products declare `custom_fw_nvs_offset` in `platformio.ini`. When host tests use the local Ghost tree (`symlink://../../../core/ghost-eco-system/...`), set `local-core-tree: true`: the libraries of `platformio.ini` are cloned there at their pinned tags.
 
+### Publishing to a release repository
+
+To keep the code private from the people who flash, a firmware can publish its releases to `<repo>-releases` (same owner, no code in it): add
+
+```yaml
+      release-repo: ${{ github.repository }}-releases
+      release-app-id: ${{ vars.GHOST_RELEASES_APP_ID }}
+    secrets:
+      GHOST_RELEASES_PRIVATE_KEY: ${{ secrets.GHOST_RELEASES_PRIVATE_KEY }}
+```
+
+The workflow refuses any other target. The release is written with a one-hour token of the releases App, limited to that repository; the signature still names the source repository, and the provisioning tool accepts the release from either place.
+
 ## Checks before a release (`scripts/ghost_release.py`)
 
 - the tag equals the version of every manifest;
