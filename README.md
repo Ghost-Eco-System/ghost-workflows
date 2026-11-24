@@ -1,6 +1,6 @@
 # ghost-workflows
 
-Reusable GitHub Actions workflows of the Ghost ecosystem: CI and signed releases of Ghost firmware ([GOS RFC-0008](https://github.com/Ghost-Eco-System/ghost-open-standard/blob/main/rfcs/rfc-0008-firmware-manifest.md), Ghost handbook ADR 0007).
+Reusable GitHub Actions workflows of the Ghost ecosystem: CI and signed releases of Ghost firmware (GOS RFC-0008, in the Ghost Extended Standard).
 
 This repository is public because a reusable workflow can only be called from another organisation when it is public (GitHub Free). It holds no firmware code, no image and no secret.
 
