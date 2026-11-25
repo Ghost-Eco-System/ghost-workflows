@@ -186,4 +186,7 @@ jobs:
         run: |
           flags=()
           if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
-          gh release create "$GITHUB_REF_NAME" $FILES firmware/*.sigstore.json             --repo "$TARGET" --title "$GITHUB_REF_NAME"             --notes "Built and signed by ghost-workflows from ${GITHUB_REPOSITORY}@${GITHUB_SHA}. Manifest ghost-firmware/1 (GOS RFC-0008); one Sigstore bundle per manifest."             "${flags[@]}"
+          gh release create "$GITHUB_REF_NAME" $FILES firmware/*.sigstore.json \
+            --repo "$TARGET" --title "$GITHUB_REF_NAME" \
+            --notes "Built and signed by ghost-workflows from ${GITHUB_REPOSITORY}@${GITHUB_SHA}. Manifest ghost-firmware/1 (GOS RFC-0008); one Sigstore bundle per manifest." \
+            "${flags[@]}"
